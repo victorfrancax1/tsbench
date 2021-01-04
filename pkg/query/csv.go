@@ -20,7 +20,11 @@ func ProcessQueriesFile(filename string) ([]Query, error) {
 		return []Query{}, err
 	}
 
-	for _, line := range lines {
+	for i, line := range lines {
+		if i == 0 {
+			// skip header
+			continue
+		}
 		query := Query{
 			Host:      line[0],
 			StartTime: line[1],
