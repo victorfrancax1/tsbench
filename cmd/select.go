@@ -16,16 +16,18 @@ var selectCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("number of workers:", workers)
 
-		queries, err := query.ProcessQueriesFile("queries_test.csv")
+		queries, err := query.ProcessQueriesFile("query_params.csv")
 
 		if err != nil {
 			fmt.Println("error:", err)
 		}
 
-		fmt.Println(queries[1].Host, queries[1].StartTime)
+		fmt.Println("No of supplied queries:", len(queries))
 
-		elapsed := query.DoSelectQuery(queries[1])
-		fmt.Println("elapsed:", elapsed)
+		elapsedList := query.PerformQueries(workers, queries)
+
+		fmt.Println("No of processed queries:", len(elapsedList))
+		fmt.Println(elapsedList)
 	},
 }
 
