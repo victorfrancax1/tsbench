@@ -15,7 +15,7 @@ func ProcessQueriesFile(filename string) ([]Query, error) {
 
 	var queries []Query
 
-	lines, err := ReadCsv(filename)
+	lines, err := readCsv(filename)
 	if err != nil {
 		return []Query{}, err
 	}
@@ -32,7 +32,7 @@ func ProcessQueriesFile(filename string) ([]Query, error) {
 	return queries, nil
 }
 
-func ReadCsv(filename string) ([][]string, error) {
+func readCsv(filename string) ([][]string, error) {
 
 	// Open CSV file
 	f, err := os.Open(filename)
