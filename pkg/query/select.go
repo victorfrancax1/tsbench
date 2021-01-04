@@ -16,7 +16,18 @@ func DoSelectQuery(query Query) time.Duration {
 	}
 	defer conn.Close(context.Background())
 
-	queryString := fmt.Sprintf("SELECT time_bucket('1 minute', ts) as one_min, MAX(usage) as max_usage, MIN(usage) as min_usage FROM cpu_usage WHERE host = '%s' AND ts >= '%s' AND ts <= '%s' GROUP BY one_min", query.Host, query.StartTime, query.EndTime)
+	queryString := fmt.Sprintf(`
+		SELECT time_bucket('1 minute', ts) as one_min,
+			MAX(usage) as max_usage,
+			MIN(usage) as min_usage
+		FROM cpu_usage
+		WHERE host = '%s'
+			AND ts >= '%s'
+			AND ts <= '%s'
+		GROUP BY one_min`,
+		query.Host,
+		query.StartTime,
+		query.EndTime)
 
 	start := time.Now()
 
