@@ -13,10 +13,10 @@ var workers int
 var selectCmd = &cobra.Command{
 	Use:   "select",
 	Short: "SELECT queries benchmark for TimescaleDB",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Number of workers:", workers)
-
-		queries, err := query.ProcessQueriesFile("query_params.csv")
+		queries, err := query.ProcessQueriesFile(args[0])
 
 		if err != nil {
 			fmt.Println("error:", err)
