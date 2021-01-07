@@ -33,7 +33,7 @@ func DoSelectQuery(query Query) time.Duration {
 
 	rows, err := conn.Query(context.Background(), queryString)
 	if err != nil {
-		fmt.Println("QueryRow failed:", err)
+		fmt.Println("Query failed:", err)
 	}
 
 	elapsed := time.Since(start)
