@@ -10,6 +10,7 @@ import (
 )
 
 var cfgFile string
+var postgresConnString string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -60,11 +61,17 @@ func initConfig() {
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".tsbench")
 	}
-
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	// If a config file is found, read it in
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigParseError); ok {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	postgresConnString = viper.GetString("postgresConnString")
 }
