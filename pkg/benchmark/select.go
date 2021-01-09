@@ -10,6 +10,11 @@ import (
 	"tsbench/pkg/utils"
 )
 
+type SelectBenchmark struct {
+	QueriesFileName string
+	NumWorkers      int
+}
+
 type SelectQuery struct {
 	Host      string
 	StartTime string
@@ -47,4 +52,64 @@ func (q SelectQuery) Execute() time.Duration {
 
 	rows.Close()
 	return elapsed
+}
+
+func (sb SelectBenchmark) ProcessQueriesFile() ([][]SelectQuery, int, error) {
+
+	var queries []SelectQuery
+
+	lines, err := utils.ReadCsv(sb.QueriesFileName)
+	if err != nil {
+		return [][]SelectQuery{}, 0, err
+	}
+
+	for i, line := range lines {
+		if i == 0 {
+			// skip header
+			continue
+		}
+		query := SelectQuery{
+			Host:      line[0],
+			StartTime: line[1],
+			EndTime:   line[2],
+		}
+		queries = append(queries, query)
+	}
+
+	numQueries := len(queries)
+	jobList := generateJobs(queries)
+
+	return jobList, numQueries, nil
+}
+
+func generateJobs(queries []SelectQuery) [][]SelectQuery {
+	var jobsMap = make(map[string][]SelectQuery)
+
+	for _, q := range queries {
+		jobsMap[q.Host] = append(jobsMap[q.Host], q)
+	}
+
+	var jobs [][]SelectQuery
+	for _, j := range jobsMap {
+		jobs = append(jobs, j)
+	}
+	return jobs
+}
+
+func (sb SelectBenchmark) RunBenchmark() error {
+
+	fmt.Println("Number of workers:", sb.NumWorkers)
+
+	jobList, numQueries, err := sb.ProcessQueriesFile()
+
+	if err != nil {
+		return err
+	}
+
+	// this probably should have error handling
+	queryTimes := PerformQueries(sb.NumWorkers, numQueries, jobList)
+
+	queryTimes.PrettyPrint()
+
+	return nil
 }

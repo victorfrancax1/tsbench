@@ -1,5 +1,9 @@
 package benchmark
 
+import (
+	"time"
+)
+
 func worker(id int, jobs <-chan []SelectQuery, results chan<- time.Duration) {
 	for j := range jobs {
 		//fmt.Println("worker", id, "started  job")
@@ -13,12 +17,10 @@ func worker(id int, jobs <-chan []SelectQuery, results chan<- time.Duration) {
 	}
 }
 
-func PerformQueries(numWorkers int, queries []SelectQuery) QueryTimes {
+func PerformQueries(numWorkers int, numQueries int, jobList [][]SelectQuery) QueryTimes {
 	var durations QueryTimes
-	numQueries := len(queries)
 
-	jobsList := generateJobs(queries)
-	numJobs := len(jobsList)
+	numJobs := len(jobList)
 	jobs := make(chan []SelectQuery, numJobs)
 	results := make(chan time.Duration, numQueries)
 
@@ -26,7 +28,7 @@ func PerformQueries(numWorkers int, queries []SelectQuery) QueryTimes {
 		go worker(w, jobs, results)
 	}
 
-	for _, j := range jobsList {
+	for _, j := range jobList {
 		jobs <- j
 	}
 	close(jobs)
