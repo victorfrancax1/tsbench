@@ -21,7 +21,8 @@ type SelectQuery struct {
 	EndTime   string
 }
 
-func (q SelectQuery) Execute(conn *pgxpool.Pool) time.Duration {
+func (q SelectQuery) Execute(conn *pgxpool.Pool) (time.Duration, error) {
+	var elapsed time.Duration
 	queryString := fmt.Sprintf(`
 		SELECT time_bucket('1 minute', ts) as one_min,
 			MAX(usage) as max_usage,
@@ -39,13 +40,13 @@ func (q SelectQuery) Execute(conn *pgxpool.Pool) time.Duration {
 
 	rows, err := conn.Query(context.Background(), queryString)
 	if err != nil {
-		fmt.Println("Query failed:", err)
+		return elapsed, err
 	}
 
-	elapsed := time.Since(start)
+	elapsed = time.Since(start)
 
 	rows.Close()
-	return elapsed
+	return elapsed, nil
 }
 
 func (sb SelectBenchmark) ProcessQueriesFile() ([][]SelectQuery, int, error) {
@@ -100,8 +101,11 @@ func (sb SelectBenchmark) RunBenchmark() error {
 		return err
 	}
 
-	// this probably should have error handling
-	queryTimes := PerformQueries(sb.NumWorkers, numQueries, jobList, sb.TsdbConnection)
+	queryTimes, err := PerformQueries(sb.NumWorkers, numQueries, jobList, sb.TsdbConnection)
+
+	if err != nil {
+		return err
+	}
 
 	queryTimes.PrettyPrint()
 
