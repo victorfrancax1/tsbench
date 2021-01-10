@@ -15,10 +15,16 @@ var selectCmd = &cobra.Command{
 	Short: "SELECT queries benchmark for TimescaleDB",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		tsdbConnection := benchmark.TsdbConnection{
+			TsdbConnString: tsdbConnString,
+		}
+
 		sb := benchmark.SelectBenchmark{
 			QueriesFileName: args[0],
 			NumWorkers:      numWorkers,
+			TsdbConnection:  tsdbConnection,
 		}
+
 		if err := sb.RunBenchmark(); err != nil {
 			fmt.Println("error:", err)
 		}

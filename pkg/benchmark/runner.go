@@ -1,15 +1,18 @@
 package benchmark
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func worker(id int, jobs <-chan []SelectQuery, results chan<- time.Duration) {
+func worker(id int, conn *pgxpool.Pool, jobs <-chan []SelectQuery, results chan<- time.Duration) {
 	for j := range jobs {
 		//fmt.Println("worker", id, "started  job")
 
 		for _, query := range j {
-			elapsed := query.Execute()
+			elapsed := query.Execute(conn)
 			results <- elapsed
 		}
 
@@ -17,15 +20,23 @@ func worker(id int, jobs <-chan []SelectQuery, results chan<- time.Duration) {
 	}
 }
 
-func PerformQueries(numWorkers int, numQueries int, jobList [][]SelectQuery) QueryTimes {
+func PerformQueries(numWorkers int, numQueries int, jobList [][]SelectQuery, tc TsdbConnection) QueryTimes {
 	var durations QueryTimes
+
+	conn, err := tc.GetConnectionPool()
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer conn.Close()
 
 	numJobs := len(jobList)
 	jobs := make(chan []SelectQuery, numJobs)
 	results := make(chan time.Duration, numQueries)
 
 	for w := 1; w <= numWorkers; w++ {
-		go worker(w, jobs, results)
+		go worker(w, conn, jobs, results)
 	}
 
 	for _, j := range jobList {

@@ -3,16 +3,16 @@ package benchmark
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"tsbench/pkg/utils"
 )
 
 type SelectBenchmark struct {
 	QueriesFileName string
 	NumWorkers      int
+	TsdbConnection  TsdbConnection
 }
 
 type SelectQuery struct {
@@ -21,13 +21,7 @@ type SelectQuery struct {
 	EndTime   string
 }
 
-func (q SelectQuery) Execute() time.Duration {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		fmt.Println("Unable to connect to database:", err)
-	}
-	defer conn.Close(context.Background())
-
+func (q SelectQuery) Execute(conn *pgxpool.Pool) time.Duration {
 	queryString := fmt.Sprintf(`
 		SELECT time_bucket('1 minute', ts) as one_min,
 			MAX(usage) as max_usage,
@@ -107,7 +101,7 @@ func (sb SelectBenchmark) RunBenchmark() error {
 	}
 
 	// this probably should have error handling
-	queryTimes := PerformQueries(sb.NumWorkers, numQueries, jobList)
+	queryTimes := PerformQueries(sb.NumWorkers, numQueries, jobList, sb.TsdbConnection)
 
 	queryTimes.PrettyPrint()
 
