@@ -1,7 +1,6 @@
 package benchmark
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -29,7 +28,7 @@ func PerformQueries(numWorkers int, numQueries int, jobList [][]SelectQuery, tc 
 	conn, err := tc.GetConnectionPool()
 
 	if err != nil {
-		fmt.Println(err)
+		return durations, err
 	}
 
 	defer conn.Close()

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"tsbench/pkg/benchmark"
 )
@@ -14,7 +12,7 @@ var selectCmd = &cobra.Command{
 	Use:   "select",
 	Short: "SELECT queries benchmark for TimescaleDB",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		tsdbConnection := benchmark.TsdbConnection{
 			TsdbConnString: tsdbConnString,
 		}
@@ -26,8 +24,9 @@ var selectCmd = &cobra.Command{
 		}
 
 		if err := sb.RunBenchmark(); err != nil {
-			fmt.Println("error:", err)
+			return err
 		}
+		return nil
 	},
 }
 
