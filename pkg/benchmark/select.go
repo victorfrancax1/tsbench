@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	"tsbench/pkg/utils"
+	"github.com/victorfrancax1/tsbench/pkg/utils"
 )
 
 type SelectBenchmark struct {
