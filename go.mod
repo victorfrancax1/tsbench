@@ -1,4 +1,4 @@
-module tsbench
+module github.com/victorfrancax1/tsbench
 
 go 1.14
 
