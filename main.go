@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "tsbench/cmd"
+import "github.com/victorfrancax1/tsbench/cmd"
 
 func main() {
 	cmd.Execute()

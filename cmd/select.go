@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"tsbench/pkg/benchmark"
+	"github.com/victorfrancax1/tsbench/pkg/benchmark"
 )
 
 var numWorkers int
