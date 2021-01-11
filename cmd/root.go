@@ -25,7 +25,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -61,23 +61,25 @@ func initConfig() {
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".tsbench")
 	}
-	viper.AutomaticEnv() // read in environment variables that match
-	viper.SetEnvPrefix("tsbench")
 
 	// If a config file is found, read it in
 	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println(err)
 		if _, ok := err.(viper.ConfigParseError); ok {
-			fmt.Println(err)
 			os.Exit(1)
 		}
 	} else {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+	//If a config file is specified, it doesnt make sense to read env variables
+	if cfgFile == "" {
+		viper.AutomaticEnv()
+		viper.SetEnvPrefix("tsbench")
+	}
 	tsdbConnString = viper.GetString("tsdb_conn_string")
 	if tsdbConnString == "" {
-		fmt.Println("failed")
+		fmt.Println("TSDB Connection string not found.")
 		os.Exit(1)
 	}
-	fmt.Println(tsdbConnString)
 }
