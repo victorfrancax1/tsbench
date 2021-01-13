@@ -8,3 +8,22 @@ tsbench is a command-line tool that can be used to benchmark SELECT query perfor
 - the median query time
 - the average query time
 - and the maximum query time.
+
+## Instalation
+
+```bash
+# Fetch tsbench and its dependencies
+go get github.com/victorfrancax1/tsbench
+cd $GOPATH/src/github.com/timescale/tsbench
+go get ./...
+
+# Install the binary
+cd $GOPATH/src/github.com/victorfrancax1/tsbench
+go install
+```
+
+## Example Usage
+
+```bash
+tsbench select --workers 10 query_params.csv 
+```
