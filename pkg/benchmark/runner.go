@@ -6,10 +6,11 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+// worker function represents the task that each concurrent goroutine will be responsible for, which is
+// receiving a list of queries, executing them, and sending the durations to the results channel.
+// If an error occurs, it will be forwarded to a separate channel instead.
 func worker(id int, conn *pgxpool.Pool, jobs <-chan []SelectQuery, results chan<- time.Duration, errors chan<- error) {
 	for j := range jobs {
-		//fmt.Println("worker", id, "started  job")
-
 		for _, query := range j {
 			elapsed, err := query.Execute(conn)
 			if err != nil {
@@ -17,11 +18,11 @@ func worker(id int, conn *pgxpool.Pool, jobs <-chan []SelectQuery, results chan<
 			}
 			results <- elapsed
 		}
-
-		//fmt.Println("worker", id, "finished job")
 	}
 }
 
+// PerformQueries is responsible for orchestrating the concurrent workers, as well as handling input and output channels
+// It will trigger workers for each SelectQuery slice in jobList, as well as collect results (and eventual errors).
 func PerformQueries(numWorkers int, numQueries int, jobList [][]SelectQuery, tc TsdbConnection) (QueryTimes, error) {
 	var durations QueryTimes
 
