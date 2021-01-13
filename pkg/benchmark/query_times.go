@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// QueryTimes represents a slice of query durations, which will be the result of the benchmarks
+// and will be used in order to gather desired metrics, such as mean, sum, min, max, avg.
 type QueryTimes []time.Duration
 
 func (qt QueryTimes) Len() int { return len(qt) }
@@ -52,6 +54,7 @@ func (qt QueryTimes) Mean() time.Duration {
 	return (qt[mIndex-1] + qt[mIndex]) / 2
 }
 
+// PrettyPrint is responsible for printing the output of the benchmark.
 func (qt QueryTimes) PrettyPrint() {
 	fmt.Println("No of processed queries:", len(qt))
 	fmt.Println("Minimum query time:   ", qt.Min())

@@ -1,3 +1,6 @@
+// Package benchmark is responsible for performing benchmarks of queries against TimescaleDB
+// instances. In tsbench, it is called by package cmd, but it can be used standalone as well.
+
 package benchmark
 
 import (
@@ -9,18 +12,25 @@ import (
 	"github.com/victorfrancax1/tsbench/pkg/utils"
 )
 
+// SelectBenchmark represents the benchmark that will be made to SELECT queries,
+// and holds parameters as the input file name, the number of concurrent workers that will be used,
+// and a TsdbConnection.
 type SelectBenchmark struct {
 	QueriesFileName string
 	NumWorkers      int
 	TsdbConnection  TsdbConnection
 }
 
+// SelectQuery represents the SELECT query that will be benchmarked against a
+// TimescaleDB instance.
 type SelectQuery struct {
 	Host      string
 	StartTime string
 	EndTime   string
 }
 
+// Execute will run the respective query against TimescaleDB, given a connection
+// (pool), returning the duration of the query.
 func (q SelectQuery) Execute(conn *pgxpool.Pool) (time.Duration, error) {
 	var elapsed time.Duration
 	queryString := fmt.Sprintf(`
@@ -49,6 +59,9 @@ func (q SelectQuery) Execute(conn *pgxpool.Pool) (time.Duration, error) {
 	return elapsed, nil
 }
 
+// ProcessQueriesFile is responsible for transforming the parsed CSV input file,
+// converting it to SelectQuery structs and then using generateJobs to make the queries
+// ready for the job executions.
 func (sb SelectBenchmark) ProcessQueriesFile() ([][]SelectQuery, int, error) {
 
 	var queries []SelectQuery
@@ -77,6 +90,8 @@ func (sb SelectBenchmark) ProcessQueriesFile() ([][]SelectQuery, int, error) {
 	return jobList, numQueries, nil
 }
 
+// generateJobs is a helper function that takes in a slice of SelectQuery, and
+// groups queries that are meant for the same host (benchmark constraint).
 func generateJobs(queries []SelectQuery) [][]SelectQuery {
 	var jobsMap = make(map[string][]SelectQuery)
 
@@ -91,6 +106,8 @@ func generateJobs(queries []SelectQuery) [][]SelectQuery {
 	return jobs
 }
 
+// RunBenchmark is responsible for wrapping of the steps required by the benchmark.
+// It will be called by tsbench/cmd.
 func (sb SelectBenchmark) RunBenchmark() error {
 
 	fmt.Println("Number of workers:", sb.NumWorkers)
