@@ -1,4 +1,4 @@
-// package cmd is responsible to handle all of the command-line interface logic of
+// Package cmd is responsible to handle all of the command-line interface logic of
 // the application. It is built with sf13/cobra and spf12/viper.
 package cmd
 
