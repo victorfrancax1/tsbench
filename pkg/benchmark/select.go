@@ -1,6 +1,5 @@
 // Package benchmark is responsible for performing benchmarks of queries against TimescaleDB
 // instances. In tsbench, it is called by package cmd, but it can be used standalone as well.
-
 package benchmark
 
 import (
