@@ -15,6 +15,7 @@ func worker(id int, conn *pgxpool.Pool, jobs <-chan []SelectQuery, results chan<
 			elapsed, err := query.Execute(conn)
 			if err != nil {
 				errors <- err
+				return
 			}
 			results <- elapsed
 		}
