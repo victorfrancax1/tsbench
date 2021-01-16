@@ -7,7 +7,7 @@ import (
 )
 
 // QueryTimes represents a slice of query durations, which will be the result of the benchmarks
-// and will be used in order to gather desired metrics, such as mean, sum, min, max, avg.
+// and will be used in order to gather desired metrics, such as median, sum, min, max, avg.
 type QueryTimes []time.Duration
 
 // Len returns the length of QueryTimes object. It's necessary due to sort.
@@ -46,7 +46,7 @@ func (qt QueryTimes) sum() time.Duration {
 	return sum
 }
 
-func (qt QueryTimes) mean() time.Duration {
+func (qt QueryTimes) median() time.Duration {
 	sort.Sort(qt)
 	mIndex := len(qt) / 2
 
@@ -62,7 +62,7 @@ func (qt QueryTimes) PrettyPrint() {
 	fmt.Println("No of processed queries:", len(qt))
 	fmt.Println("Minimum query time:   ", qt.min())
 	fmt.Println("Maximum query time:   ", qt.max())
-	fmt.Println("Mean query time:      ", qt.mean())
+	fmt.Println("Median query time:    ", qt.median())
 	fmt.Println("Average query time:   ", qt.average())
 	fmt.Println("Total processing time:", qt.sum())
 }
